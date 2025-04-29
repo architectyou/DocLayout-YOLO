@@ -4,6 +4,8 @@ import torch
 import argparse
 from doclayout_yolo import YOLOv10
 
+import pdb
+
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
@@ -28,7 +30,24 @@ if __name__ == "__main__":
         conf=args.conf,
         device=device,
     )
+
+    # # import pdb; pdb.set_trace()
+
+    summaries = det_res[0].summary()
+
+    ### bounding box crop
+    print(summaries[0])
+
+    for idx, summary in enumerate(summaries) : 
+        if summary['name'] == 'plain text' : 
+            output_dir = os.path.join(args.res_path, summary['name'])
+            os.makedirs(output_dir, exist_ok=True)
+            x1, y1, x2, y2 = summary['box']['x1'], summary['box']['y1'], summary['box']['x2'], summary['box']['y2']
+            crop_img = det_res[0].orig_img[int(y1):int(y2), int(x1):int(x2)]
+            cv2.imwrite(os.path.join(output_dir, f"{args.image_path.split('/')[-1].replace('.jpg', '')}_{idx}.jpg"), crop_img)
+
     annotated_frame = det_res[0].plot(pil=True, line_width=args.line_width, font_size=args.font_size)
+
     if not os.path.exists(args.res_path):
         os.makedirs(args.res_path)
     output_path = os.path.join(args.res_path, args.image_path.split("/")[-1].replace(".jpg", "_res.jpg"))
