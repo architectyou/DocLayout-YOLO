@@ -73,7 +73,7 @@ class ResNet(nn.Module):
 class LanguagePredictor :
     def __init__(self):
         self.model = ResNet(BasicBlock, [2, 2, 2, 2])
-        self.model_path = "lpn/1024_resnet18_weight.pth"
+        self.model_path = "lpn/lpn_weight.pth"
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model.to(self.device)
         self.model.load_state_dict(torch.load(self.model_path, map_location=self.device))
@@ -102,7 +102,7 @@ class LanguagePredictor :
         else :
             image = Image.open(image).convert("RGB")
             
-        if len(image.shape) == 3:
+        if isinstance(image, Image.Image):
             image = self.transform(image).unsqueeze(0)
         else:
             image = F.interpolate(image, size=(224, 224), mode='bilinear', align_corners=False)
